@@ -152,3 +152,24 @@ def fading_moving_average(data, weights=[0.5, 0.5]):
         last_value = new_value
 
     return result
+
+def new_point(value, mean, std):
+    return (value-mean)/std
+
+def normalize_list(list):
+    mean = np.mean(list)
+    std = np.std(list)
+    new_list = [new_point(val, mean, std) for val in list]
+    return new_list
+
+def get_distance(x1, y1, x2, y2):
+    return sqrt(((x2-x1)**2)+((y2-y1)**2))
+
+def get_distances_for_multiple_points(x_vals, y_vals, points_x_vals, points_y_vals):
+    return [
+        [
+            get_distance(x1, y1, x2, y2)
+            for x1, y1 in zip(points_x_vals, points_y_vals)
+        ]
+        for x2, y2 in zip(x_vals, y_vals)
+    ]
