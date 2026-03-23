@@ -264,7 +264,6 @@ def plot_lobf_with_std(x_vals, y_vals, quadratic=False, n_std=2):
     x_vals = np.array(x_vals, dtype=float)
     y_vals = np.array(y_vals, dtype=float)
 
-    # get coefficients
     if quadratic:
         a, b, c = sl.get_lobf_quad(x_vals, y_vals)
         y_fit = a*x_vals**2 + b*x_vals + c
@@ -276,18 +275,26 @@ def plot_lobf_with_std(x_vals, y_vals, quadratic=False, n_std=2):
         xs = np.linspace(min(x_vals), max(x_vals), 300)
         ys_fit = a*xs + b
 
-    # residuals and std
     residuals = y_vals - y_fit
     std = np.std(residuals)
 
-    # upper and lower lines
     ys_upper = ys_fit + n_std*std
     ys_lower = ys_fit - n_std*std
 
-    # plot
     plt.scatter(x_vals, y_vals)
     plt.plot(xs, ys_fit, '--', label='Best fit')
     plt.plot(xs, ys_upper, ':', color='gray', label=f'+{n_std} std')
     plt.plot(xs, ys_lower, ':', color='gray', label=f'-{n_std} std')
     plt.legend()
     plt.show()
+
+def plot_centroid_groups(df, x_column_name, y_column_name):
+    plots = []
+    for idx in df['centroid_idx'].unique():
+        rows = df.query(f'centroid_idx=={idx}')
+        x_vals = rows[x_column_name]
+        y_vals = rows[y_column_name]
+        sp = ScatterPlot(x_vals, y_vals)
+        plots.append(sp)
+    SubPlot([plots]).plot()
+    

@@ -173,3 +173,36 @@ def get_distances_for_multiple_points(x_vals, y_vals, points_x_vals, points_y_va
         ]
         for x2, y2 in zip(x_vals, y_vals)
     ]
+
+def apply_k_means_to_df(df, column_x_name, column_y_name):
+    n_column_x_name = f'normalized_{column_x_name}'
+    n_column_y_name = f'normalized_{column_y_name}'
+    centroid_x_vals = []
+    centroid_y_vals = []
+    for centroid_idx in df['centroid_idx'].unique():
+        rows = df.query(f'centroid_idx == {centroid_idx}')
+        centroid_x_vals.append(rows[n_column_x_name].mean())
+        centroid_y_vals.append(rows[n_column_y_name].mean())
+    return centroid_x_vals, centroid_y_vals
+
+def apply_centroids_to_df(df, column_x_name, column_y_name, centroid_x_vals, centroid_y_vals):
+    centroid_counts = len(centroid_x_vals)
+    n_column_x_name = f'normalized_{column_x_name}'
+    n_column_y_name = f'normalized_{column_y_name}'
+    distances_to_centroids = get_distances_for_multiple_points(df[n_column_x_name], df[n_column_y_name], centroid_x_vals, centroid_y_vals)
+    df['distances_to_centroids'] = distances_to_centroids
+    df['centroid_idx'] = df['distances_to_centroids'].apply(lambda x: x.index(min(x)))
+
+def add_normalized_lists(df, column_x_name, column_y_name):
+    n_column_x_name = f'normalized_{column_x_name}'
+    n_column_y_name = f'normalized_{column_y_name}'
+    df[n_column_x_name] = normalize_list(df[column_x_name])
+    df[n_column_y_name] = normalize_list(df[column_y_name])
+
+def full_k_means(df, column_x_name, column_y_name, centroid_x_vals, centroid_y_vals, iters=5):
+    add_normalized_lists(df, column_x_name, column_y_name)
+    apply_centroids_to_df(df, column_x_name, column_y_name, centroid_x_vals, centroid_y_vals)
+    for iter in range(iters):
+        centroid_x_vals, centroid_y_vals = apply_k_means_to_df(df, column_x_name, column_y_name)
+        apply_centroids_to_df(df, column_x_name, column_y_name, centroid_x_vals, centroid_y_vals)
+
