@@ -288,13 +288,13 @@ def plot_lobf_with_std(x_vals, y_vals, quadratic=False, n_std=2):
     plt.legend()
     plt.show()
 
-def plot_centroid_groups(df, x_column_name, y_column_name):
+def plot_centroid_groups(df, x_column_name, y_column_name, title):
     plots = []
     for idx in df['centroid_idx'].unique():
         rows = df.query(f'centroid_idx=={idx}')
         x_vals = rows[x_column_name]
         y_vals = rows[y_column_name]
-        sp = ScatterPlot(x_vals, y_vals)
+        sp = ScatterPlot(x_vals, y_vals, title, x_column_name, y_column_name, label=f'centroid {idx}')
         plots.append(sp)
     SubPlot([plots]).plot()
     
